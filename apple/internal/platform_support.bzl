@@ -15,6 +15,10 @@
 """Support functions for working with Apple platforms and device families."""
 
 load(
+    "@build_bazel_rules_apple//apple/internal:features_support.bzl",
+    "features_support",
+)
+load(
     "@build_bazel_rules_apple//apple/internal:rule_support.bzl",
     "rule_support",
 )
@@ -66,6 +70,8 @@ def _platform_prerequisites(
         apple_fragment,
         config_vars,
         device_families,
+        disabled_features = None,
+        features = None,
         explicit_minimum_os = None,
         objc_fragment = None,
         platform_type_string,
@@ -100,9 +106,15 @@ def _platform_prerequisites(
 
     sdk_version = xcode_version_config.sdk_version_for_platform(platform)
 
+    features = features_support.compute_enabled_features(
+        requested_features = features or [],
+        unsupported_features = disabled_features or [],
+    )
+
     return struct(
         apple_fragment = apple_fragment,
         config_vars = config_vars,
+        features = features,
         device_families = device_families,
         minimum_os = minimum_os,
         platform = platform,
@@ -135,6 +147,8 @@ def _platform_prerequisites_from_rule_ctx(ctx):
         apple_fragment = ctx.fragments.apple,
         config_vars = ctx.var,
         device_families = device_families,
+        disabled_features = ctx.disabled_features,
+        features = ctx.features,
         explicit_minimum_os = ctx.attr.minimum_os_version,
         objc_fragment = ctx.fragments.objc,
         platform_type_string = ctx.attr.platform_type,
