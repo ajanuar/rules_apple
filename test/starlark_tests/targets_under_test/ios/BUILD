@@ -979,6 +979,7 @@ substitution(
 ios_application(
     name = "app_with_codesignopts",
     bundle_id = "com.google.example",
+    codesign_inputs = [":resource_rules"],
     codesignopts = [
         "--digest-algorithm=sha1",
         "--digest-algorithm=sha384",
@@ -1778,6 +1779,7 @@ swift_library(
         "//test/starlark_tests/resources:BasicFramework.swift",
     ],
     features = ["swift.no_generated_module_map"],
+    generates_header = True,
     module_name = "BasicFramework",
     tags = FIXTURE_TAGS,
     visibility = ["//visibility:public"],
@@ -1807,6 +1809,7 @@ swift_library(
         "//test/starlark_tests/resources:DirectDependencyTest.swift",
     ],
     features = ["swift.no_generated_module_map"],
+    generates_header = True,
     module_name = "DirectDependencyTest",
     tags = FIXTURE_TAGS,
     visibility = ["//visibility:public"],
@@ -1839,6 +1842,7 @@ swift_library(
         "//test/starlark_tests/resources:TransitiveDependencyTest.swift",
     ],
     features = ["swift.no_generated_module_map"],
+    generates_header = True,
     module_name = "TransitiveDependencyTest",
     tags = FIXTURE_TAGS,
     visibility = ["//visibility:public"],

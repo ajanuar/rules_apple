@@ -293,6 +293,7 @@ def _ios_application_impl(ctx):
         apple_toolchain_info = apple_toolchain_info,
         bundle_extension = bundle_extension,
         bundle_name = bundle_name,
+        codesign_inputs = ctx.files.codesign_inputs,
         codesignopts = codesigning_support.codesignopts_from_rule_ctx(ctx),
         entitlements = entitlements,
         executable_name = executable_name,
@@ -384,7 +385,13 @@ def _ios_app_clip_impl(ctx):
         entitlements_attr = getattr(ctx.attr, "entitlements", None),
         entitlements_file = getattr(ctx.file, "entitlements", None),
     )
+    executable_name = bundling_support.executable_name(ctx)
+    features = features_support.compute_enabled_features(
+        requested_features = ctx.features,
+        unsupported_features = ctx.disabled_features,
+    )
     label = ctx.label
+    platform_prerequisites = platform_support.platform_prerequisites_from_rule_ctx(ctx)
     predeclared_outputs = ctx.outputs
     rule_descriptor = rule_support.rule_descriptor(ctx)
 
@@ -510,6 +517,7 @@ def _ios_app_clip_impl(ctx):
         apple_toolchain_info = apple_toolchain_info,
         bundle_extension = bundle_extension,
         bundle_name = bundle_name,
+        codesign_inputs = ctx.files.codesign_inputs,
         codesignopts = codesigning_support.codesignopts_from_rule_ctx(ctx),
         entitlements = entitlements,
         executable_name = executable_name,
@@ -890,6 +898,7 @@ def _ios_framework_impl(ctx):
         apple_toolchain_info = apple_toolchain_info,
         bundle_extension = bundle_extension,
         bundle_name = bundle_name,
+        codesign_inputs = ctx.files.codesign_inputs,
         codesignopts = codesigning_support.codesignopts_from_rule_ctx(ctx),
         entitlements = entitlements,
         executable_name = executable_name,
@@ -1069,6 +1078,7 @@ def _ios_extension_impl(ctx):
         apple_toolchain_info = apple_toolchain_info,
         bundle_extension = bundle_extension,
         bundle_name = bundle_name,
+        codesign_inputs = ctx.files.codesign_inputs,
         codesignopts = codesigning_support.codesignopts_from_rule_ctx(ctx),
         entitlements = entitlements,
         executable_name = executable_name,
@@ -1287,7 +1297,7 @@ def _ios_dynamic_framework_impl(ctx):
             # in the AppleDynamicFramework provider. This is to make the
             # ios_dynamic_framework usable as a dependency in swift_library
             objc_provider = apple_common.new_objc_provider(
-                dynamic_framework_file = provider.framework_files
+                dynamic_framework_file = provider.framework_files,
             )
             additional_providers.append(objc_provider)
     providers.extend(additional_providers)
@@ -1385,6 +1395,7 @@ def _ios_static_framework_impl(ctx):
         apple_toolchain_info = apple_toolchain_info,
         bundle_extension = bundle_extension,
         bundle_name = bundle_name,
+        codesign_inputs = ctx.files.codesign_inputs,
         codesignopts = codesigning_support.codesignopts_from_rule_ctx(ctx),
         executable_name = executable_name,
         entitlements = entitlements,
@@ -1693,6 +1704,7 @@ def _ios_imessage_extension_impl(ctx):
         apple_toolchain_info = apple_toolchain_info,
         bundle_extension = bundle_extension,
         bundle_name = bundle_name,
+        codesign_inputs = ctx.files.codesign_inputs,
         codesignopts = codesigning_support.codesignopts_from_rule_ctx(ctx),
         entitlements = entitlements,
         executable_name = executable_name,

@@ -225,6 +225,7 @@ def _bundle_partial_outputs_files(
         apple_toolchain_info,
         bundle_extension,
         bundle_name,
+        codesign_inputs = [],
         codesigning_command = None,
         embedding = False,
         extra_input_files = [],
@@ -242,6 +243,7 @@ def _bundle_partial_outputs_files(
       apple_toolchain_info: `struct` of tools from the shared Apple toolchain.
       bundle_extension: The extension for the bundle.
       bundle_name: The name of the output bundle.
+      codesign_inputs: Extra inputs needed for the `codesign` tool.
       codesigning_command: When building tree artifact outputs, the command to codesign the output
           bundle.
       embedding: Whether outputs are being bundled to be embedded.
@@ -426,7 +428,7 @@ def _bundle_partial_outputs_files(
             apple_fragment = platform_prerequisites.apple_fragment,
             executable = resolved_bundletool.executable,
             execution_requirements = execution_requirements,
-            inputs = depset(bundletool_inputs, transitive = [
+            inputs = depset(bundletool_inputs + codesign_inputs, transitive = [
                 resolved_bundletool.inputs,
                 resolved_codesigningtool.inputs,
             ]),
@@ -456,6 +458,7 @@ def _bundle_post_process_and_sign(
         apple_toolchain_info,
         bundle_extension,
         bundle_name,
+        codesign_inputs,
         codesignopts,
         entitlements,
         executable_name,
@@ -475,7 +478,8 @@ def _bundle_post_process_and_sign(
         apple_toolchain_info: `struct` of tools from the shared Apple toolchain.
         bundle_extension: The extension for the bundle.
         bundle_name: The name of the output bundle.
-        codesignopts: Extra options to pass to the `codesign` tool
+        codesign_inputs: Extra inputs needed for the `codesign` tool.
+        codesignopts: Extra options to pass to the `codesign` tool.
         entitlements: The entitlements file to sign with. Can be `None` if one was not provided.
         executable_name: The name of the output executable.
         ipa_post_processor: A file that acts as a bundle post processing tool. May be `None`.
@@ -529,6 +533,7 @@ def _bundle_post_process_and_sign(
             apple_toolchain_info = apple_toolchain_info,
             bundle_extension = bundle_extension,
             bundle_name = bundle_name,
+            codesign_inputs = codesign_inputs,
             codesigning_command = codesigning_command,
             extra_input_files = extra_input_files,
             ipa_post_processor = ipa_post_processor,
@@ -575,6 +580,7 @@ def _bundle_post_process_and_sign(
         codesigning_support.post_process_and_sign_archive_action(
             actions = actions,
             archive_codesigning_path = archive_codesigning_path,
+            codesign_inputs = codesign_inputs,
             codesignopts = codesignopts,
             entitlements = entitlements,
             frameworks_path = frameworks_path,
@@ -639,6 +645,7 @@ def _bundle_post_process_and_sign(
             codesigning_support.post_process_and_sign_archive_action(
                 actions = actions,
                 archive_codesigning_path = embedding_archive_codesigning_path,
+                codesign_inputs = codesign_inputs,
                 codesignopts = codesignopts,
                 entitlements = entitlements,
                 frameworks_path = embedding_frameworks_path,
@@ -662,6 +669,7 @@ def _process(
         bundle_extension,
         bundle_name,
         bundle_post_process_and_sign = True,
+        codesign_inputs = [],
         codesignopts = [],
         entitlements,
         executable_name,
@@ -682,7 +690,8 @@ def _process(
       bundle_name: The name of the output bundle.
       bundle_post_process_and_sign: If the process action should also post process and sign after
           calling the implementation of every partial. Defaults to True.
-      codesignopts: Extra options to pass to the `codesign` tool
+      codesign_inputs: Extra inputs needed for the `codesign` tool.
+      codesignopts: Extra options to pass to the `codesign` tool.
       entitlements: The entitlements file to sign with. Can be `None` if one was not provided.
       executable_name: The name of the output executable.
       ipa_post_processor: A file that acts as a bundle post processing tool. May be `None`.
@@ -716,6 +725,7 @@ def _process(
             apple_toolchain_info = apple_toolchain_info,
             bundle_extension = bundle_extension,
             bundle_name = bundle_name,
+            codesign_inputs = codesign_inputs,
             codesignopts = codesignopts,
             executable_name = executable_name,
             entitlements = entitlements,

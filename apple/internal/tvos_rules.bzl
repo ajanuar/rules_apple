@@ -244,6 +244,7 @@ def _tvos_application_impl(ctx):
         apple_toolchain_info = apple_toolchain_info,
         bundle_extension = bundle_extension,
         bundle_name = bundle_name,
+        codesign_inputs = ctx.files.codesign_inputs,
         codesignopts = codesigning_support.codesignopts_from_rule_ctx(ctx),
         executable_name = executable_name,
         entitlements = entitlements,
@@ -458,6 +459,7 @@ def _tvos_dynamic_framework_impl(ctx):
         apple_toolchain_info = apple_toolchain_info,
         bundle_extension = bundle_extension,
         bundle_name = bundle_name,
+        codesign_inputs = ctx.files.codesign_inputs,
         codesignopts = codesigning_support.codesignopts_from_rule_ctx(ctx),
         entitlements = entitlements,
         executable_name = executable_name,
@@ -479,7 +481,7 @@ def _tvos_dynamic_framework_impl(ctx):
             # in the AppleDynamicFramework provider. This is to make the
             # tvos_dynamic_framework usable as a dependency in swift_library
             objc_provider = apple_common.new_objc_provider(
-                dynamic_framework_file = provider.framework_files
+                dynamic_framework_file = provider.framework_files,
             )
             additional_providers.append(objc_provider)
     providers.extend(additional_providers)
@@ -639,6 +641,7 @@ def _tvos_framework_impl(ctx):
         apple_toolchain_info = apple_toolchain_info,
         bundle_extension = bundle_extension,
         bundle_name = bundle_name,
+        codesign_inputs = ctx.files.codesign_inputs,
         codesignopts = codesigning_support.codesignopts_from_rule_ctx(ctx),
         entitlements = entitlements,
         executable_name = executable_name,
@@ -803,6 +806,7 @@ def _tvos_extension_impl(ctx):
         apple_toolchain_info = apple_toolchain_info,
         bundle_extension = bundle_extension,
         bundle_name = bundle_name,
+        codesign_inputs = ctx.files.codesign_inputs,
         codesignopts = codesigning_support.codesignopts_from_rule_ctx(ctx),
         entitlements = entitlements,
         executable_name = executable_name,
@@ -916,6 +920,7 @@ def _tvos_static_framework_impl(ctx):
         apple_toolchain_info = apple_toolchain_info,
         bundle_extension = bundle_extension,
         bundle_name = bundle_name,
+        codesign_inputs = ctx.files.codesign_inputs,
         codesignopts = codesigning_support.codesignopts_from_rule_ctx(ctx),
         entitlements = entitlements,
         executable_name = executable_name,

@@ -23,10 +23,6 @@ load(
     "defines",
 )
 load(
-    "@build_bazel_rules_apple//apple/internal/utils:legacy_actions.bzl",
-    "legacy_actions",
-)
-load(
     "@build_bazel_rules_apple//apple/internal:intermediates.bzl",
     "intermediates",
 )
@@ -519,6 +515,7 @@ def _post_process_and_sign_archive_action(
         *,
         actions,
         archive_codesigning_path,
+        codesign_inputs,
         codesignopts,
         entitlements = None,
         frameworks_path,
@@ -538,7 +535,8 @@ def _post_process_and_sign_archive_action(
     Args:
       actions: The actions provider from `ctx.actions`.
       archive_codesigning_path: The codesigning path relative to the archive.
-      codesignopts: Extra options to pass to the `codesign` tool
+      codesign_inputs: Extra inputs needed for the `codesign` tool.
+      codesignopts: Extra options to pass to the `codesign` tool.
       entitlements: Optional file representing the entitlements to sign with.
       frameworks_path: The Frameworks path relative to the archive.
       input_archive: The `File` representing the archive containing the bundle
@@ -653,18 +651,22 @@ def _post_process_and_sign_archive_action(
 
     run_on_darwin = any([signing_command_lines, ipa_post_processor_path])
     if run_on_darwin:
-        legacy_actions.run(
+        apple_support.run(
             actions = actions,
+            apple_fragment = platform_prerequisites.apple_fragment,
             arguments = arguments,
             executable = process_and_sign_expanded_template,
             execution_requirements = execution_requirements,
-            inputs = depset(input_files, transitive = [resolved_codesigningtool.inputs]),
+            inputs = depset(
+                input_files + codesign_inputs,
+                transitive = [resolved_codesigningtool.inputs],
+            ),
             input_manifests = resolved_codesigningtool.input_manifests,
             mnemonic = mnemonic,
             outputs = [output_archive],
-            platform_prerequisites = platform_prerequisites,
             progress_message = progress_message,
             tools = processing_tools,
+            xcode_config = platform_prerequisites.xcode_version_config,
         )
     else:
         actions.run(
@@ -679,6 +681,7 @@ def _post_process_and_sign_archive_action(
 def _sign_binary_action(
         *,
         actions,
+        codesign_inputs,
         codesignopts,
         input_binary,
         output_binary,
@@ -690,7 +693,8 @@ def _sign_binary_action(
 
     Args:
       actions: The actions provider from `ctx.actions`.
-      codesignopts: Extra options to pass to the `codesign` tool
+      codesign_inputs: Extra inputs needed for the `codesign` tool.
+      codesignopts: Extra options to pass to the `codesign` tool.
       input_binary: The `File` representing the binary to be signed.
       output_binary: The `File` representing signed binary.
       platform_prerequisites: Struct containing information on the platform being targeted.
@@ -728,19 +732,23 @@ def _sign_binary_action(
         # identities.
         execution_requirements["no-remote"] = "1"
 
-    legacy_actions.run_shell(
+    apple_support.run_shell(
         actions = actions,
+        apple_fragment = platform_prerequisites.apple_fragment,
         command = "cp {input_binary} {output_binary}".format(
             input_binary = input_binary.path,
             output_binary = output_binary.path,
         ) + "\n" + signing_commands,
         execution_requirements = execution_requirements,
-        inputs = depset([input_binary], transitive = [resolved_codesigningtool.inputs]),
+        inputs = depset(
+            [input_binary] + codesign_inputs,
+            transitive = [resolved_codesigningtool.inputs],
+        ),
         input_manifests = resolved_codesigningtool.input_manifests,
         mnemonic = "SignBinary",
         outputs = [output_binary],
-        platform_prerequisites = platform_prerequisites,
         tools = [resolved_codesigningtool.executable],
+        xcode_config = platform_prerequisites.xcode_version_config,
     )
 
 def _embedded_codesigning_dossier(relative_bundle_path, dossier_file):
