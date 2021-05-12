@@ -104,6 +104,7 @@ bzl_library(
         "//apple/internal/resource_rules:apple_core_ml_library",
         "//apple/internal/resource_rules:apple_resource_bundle",
         "//apple/internal/resource_rules:apple_resource_group",
+        "@rules_cc//cc:defs.bzl",
     ],
 )
 
@@ -140,6 +141,12 @@ bzl_library(
         "//apple/internal:watchos_rules",
         "//apple/internal/testing:build_test_rules",
     ],
+)
+
+bzl_library(
+    name = "watchos.doc",
+    srcs = ["watchos.doc.bzl"],
+    deps = ["watchos"],
 )
 
 # Consumed by bazel tests.

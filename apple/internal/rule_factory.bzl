@@ -134,22 +134,10 @@ _COMMON_BINARY_RULE_ATTRS = dicts.add(
             cfg = apple_common.multi_arch_split,
             default = Label("@bazel_tools//tools/objc:dummy_lib"),
         ),
-        "_googlemac_proto_compiler": attr.label(
-            cfg = "host",
-            default = Label("@bazel_tools//tools/objc:protobuf_compiler_wrapper"),
-        ),
-        "_googlemac_proto_compiler_support": attr.label(
-            cfg = "host",
-            default = Label("@bazel_tools//tools/objc:protobuf_compiler_support"),
-        ),
         # Needed for the J2ObjC processing code that already exists in the implementation of
         # apple_common.link_multi_arch_binary.
         "_j2objc_dead_code_pruner": attr.label(
             default = Label("@bazel_tools//tools/objc:j2objc_dead_code_pruner"),
-        ),
-        "_protobuf_well_known_types": attr.label(
-            cfg = "host",
-            default = Label("@bazel_tools//tools/objc:protobuf_well_known_types"),
         ),
         # xcrunwrapper is no longer used by rules_apple, but the underlying implementation of
         # apple_common.link_multi_arch_binary requires this attribute.
@@ -201,7 +189,6 @@ AppleTestRunnerInfo provider.
 
 def _common_binary_linking_attrs(default_binary_type, deps_cfg, product_type):
     deps_aspects = [
-        apple_common.objc_proto_aspect,
         swift_usage_aspect,
     ]
 
@@ -231,7 +218,6 @@ Do not change its value.
     """,
             ),
             "bundle_loader": attr.label(
-                aspects = [apple_common.objc_proto_aspect],
                 providers = [[apple_common.AppleExecutableBinary]],
                 doc = """
 This attribute is public as an implementation detail while we migrate the architecture of the rules.
@@ -239,7 +225,6 @@ Do not change its value.
     """,
             ),
             "dylibs": attr.label_list(
-                aspects = [apple_common.objc_proto_aspect],
                 doc = """
 This attribute is public as an implementation detail while we migrate the architecture of the rules.
 Do not change its value.
@@ -479,7 +464,8 @@ bundle ID of the application and `$(AppIdentifierPrefix)` with the value of the
             "entitlements_validation": attr.string(
                 default = entitlements_validation_mode.loose,
                 doc = """
-An `entitlements_validation_mode` to control the validation of the requested entitlements against
+An [`entitlements_validation_mode`](/doc/types.md#entitlements-validation-mode)
+to control the validation of the requested entitlements against
 the provisioning profile to ensure they are supported.
 """,
                 values = [
@@ -1139,7 +1125,12 @@ binaries/libraries will be created combining all architectures specified by
         outputs = implicit_outputs,
     )
 
-def _create_apple_bundling_rule(implementation, platform_type, product_type, doc):
+def _create_apple_bundling_rule(
+        implementation,
+        platform_type,
+        product_type,
+        doc,
+        cfg = transition_support.apple_rule_transition):
     """Creates an Apple bundling rule."""
     rule_attrs = [
         {
@@ -1199,7 +1190,7 @@ def _create_apple_bundling_rule(implementation, platform_type, product_type, doc
         implementation = implementation,
         # TODO(kaipi): Replace dicts.add with a version that errors on duplicate keys.
         attrs = dicts.add(*rule_attrs),
-        cfg = transition_support.apple_rule_transition,
+        cfg = cfg,
         doc = doc,
         executable = rule_descriptor.is_executable,
         fragments = ["apple", "cpp", "objc"],
