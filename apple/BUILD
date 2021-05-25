@@ -87,6 +87,12 @@ bzl_library(
 )
 
 bzl_library(
+    name = "macos.doc",
+    srcs = ["macos.doc.bzl"],
+    deps = ["macos"],
+)
+
+bzl_library(
     name = "providers",
     srcs = ["providers.bzl"],
 )
@@ -118,6 +124,12 @@ bzl_library(
         "//apple/internal/testing:build_test_rules",
         "//apple/internal/testing:tvos_rules",
     ],
+)
+
+bzl_library(
+    name = "tvos.doc",
+    srcs = ["tvos.doc.bzl"],
+    deps = ["tvos"],
 )
 
 bzl_library(

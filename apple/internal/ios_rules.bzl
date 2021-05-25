@@ -204,7 +204,6 @@ def _ios_application_impl(ctx):
             debug_outputs_provider = debug_outputs_provider,
             dsym_info_plist_template = apple_toolchain_info.dsym_info_plist_template,
             executable_name = executable_name,
-            package_symbols = True,
             platform_prerequisites = platform_prerequisites,
             rule_label = label,
         ),
@@ -217,7 +216,6 @@ def _ios_application_impl(ctx):
             actions = actions,
             apple_toolchain_info = apple_toolchain_info,
             label_name = label.name,
-            package_symbols = True,
             platform_prerequisites = platform_prerequisites,
             provisioning_profile = getattr(ctx.file, "provisioning_profile", None),
             rule_descriptor = rule_descriptor,
@@ -255,6 +253,15 @@ def _ios_application_impl(ctx):
             dependency_targets = embeddable_targets,
             label_name = label.name,
             package_swift_support_if_needed = True,
+            platform_prerequisites = platform_prerequisites,
+        ),
+        partials.apple_symbols_file_partial(
+            actions = actions,
+            binary_artifact = binary_artifact,
+            debug_outputs_provider = debug_outputs_provider,
+            dependency_targets = embeddable_targets + ctx.attr.deps,
+            label_name = label.name,
+            include_symbols_in_bundle = ctx.attr.include_symbols_in_bundle,
             platform_prerequisites = platform_prerequisites,
         ),
     ]
@@ -891,6 +898,15 @@ def _ios_framework_impl(ctx):
             label_name = label.name,
             platform_prerequisites = platform_prerequisites,
         ),
+        partials.apple_symbols_file_partial(
+            actions = actions,
+            binary_artifact = binary_artifact,
+            debug_outputs_provider = debug_outputs_provider,
+            dependency_targets = ctx.attr.frameworks,
+            label_name = label.name,
+            include_symbols_in_bundle = False,
+            platform_prerequisites = platform_prerequisites,
+        ),
     ]
 
     processor_result = processor.process(
@@ -1060,6 +1076,15 @@ def _ios_extension_impl(ctx):
             binary_artifact = binary_artifact,
             dependency_targets = ctx.attr.frameworks,
             label_name = label.name,
+            platform_prerequisites = platform_prerequisites,
+        ),
+        partials.apple_symbols_file_partial(
+            actions = actions,
+            binary_artifact = binary_artifact,
+            debug_outputs_provider = debug_outputs_provider,
+            dependency_targets = ctx.attr.frameworks,
+            label_name = label.name,
+            include_symbols_in_bundle = False,
             platform_prerequisites = platform_prerequisites,
         ),
     ]
