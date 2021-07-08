@@ -3,10 +3,10 @@ actions:
     triggers:
       push:
         branches:
-          - "main"
+          - "test-build"
       pull_request:
         branches:
-          - "main"
+          - "test-build"
     bazel_commands:
       - "test //... --build_metadata=ROLE=CI --bes_backend=grpcs://cloud.buildbuddy.io --bes_results_url=https://app.buildbuddy.io/invocation/"
 
