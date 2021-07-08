@@ -8,5 +8,5 @@ actions:
         branches:
           - "test-build"
     bazel_commands:
-      - "test //... --build_metadata=ROLE=CI --bes_backend=grpcs://cloud.buildbuddy.io --bes_results_url=https://app.buildbuddy.io/invocation/"
-
+      - "bazel run @build_bazel_rules_swift//tools/dump_toolchains"
+      
