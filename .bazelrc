@@ -42,3 +42,4 @@ build --remote_download_minimal
 build --experimental_repo_remote_exec
 build --jobs=100
 build --verbose_failures
+build --action_env=CC=clang
